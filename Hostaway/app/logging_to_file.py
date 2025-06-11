@@ -1,4 +1,6 @@
 import logging
+import sys
+import os
 
 
 def setup_logger(name: str) -> logging.Logger:
@@ -13,12 +15,19 @@ def setup_logger(name: str) -> logging.Logger:
         datefmt='%m/%d/%Y %I:%M:%S %p'
     )
 
-    ch = logging.StreamHandler()
+    # Stream handler (console), safely handling UTF-8 output
+    ch = logging.StreamHandler(stream=sys.stdout)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    fh = logging.FileHandler("app.log")
+    # File handler with UTF-8 encoding
+    log_dir = os.path.join(os.path.dirname(__file__), 'logs')  # logs folder next to this script
+    os.makedirs(log_dir, exist_ok=True)  # Create logs folder if missing
+
+    log_path = os.path.join(log_dir, 'app.log')
+    fh = logging.FileHandler(log_path, encoding='utf-8')
     fh.setFormatter(formatter)
+
     logger.addHandler(fh)
 
     return logger

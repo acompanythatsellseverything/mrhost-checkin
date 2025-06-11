@@ -1,13 +1,13 @@
 import asyncio
-from typing import List, Dict
 import requests
 import os
 from dotenv import load_dotenv
-import db.nocodb as db
-from datetime import date, timedelta, datetime, time
+import app.db.nocodb as db
+from datetime import date, timedelta, datetime
 from fastapi import Request
 import pytz
-from logging_to_file import setup_logger
+from app.logging_to_file import setup_logger
+from app.services.slack import error_notifications
 
 
 logger = setup_logger(__name__)
@@ -15,6 +15,8 @@ load_dotenv()
 
 BAD_STATUSES = {"cancelled", "declined", "expired", "inquiryDenied", "inquiryNotPossible"}
 GET_RESERVATION_BY_ID = "https://api.hostaway.com/v1/reservations"
+CHECK_OUT_URL = "https://api.hostaway.com/v1/reservations?departureStartDate=TODAY&departureEndDate=TODAY"
+WEBHOOK_URL = "https://mrhost.top/webhook/34d808dc-03c7-41cd-a426-cae0d7be98f0"
 
 session = requests.Session()
 session.headers.update({
@@ -62,6 +64,7 @@ def list_reservations(action: str) -> list:
 
     except Exception as e:
         logger.error(f"Failed to fetch reservations from {url}: {e}", exc_info=True)
+        error_notifications(f"Failed to fetch reservations from {url}: {e}")
         raise
 
 
@@ -93,6 +96,7 @@ def check_registrations() -> dict:
 
     except Exception as e:
         logger.warning(f"Request failed: {e}")
+        error_notifications(f"Request failed: {e}")
         raise
 
 
@@ -141,6 +145,62 @@ async def webhook(request: Request):
         return {"status": "more than a day"}
 
 
+def checkout():
+    try:
+        response = session.get(CHECK_OUT_URL)
+        response.raise_for_status()
+        data = response.json()
+
+        for reservation in data.get('result', []):
+            reservation_id = reservation.get('id')
+            phone = reservation.get('phone')
+
+            if not reservation_id:
+                logger.warning("Missing reservation ID, skipping.")
+                continue
+
+            conv_url = f"https://api.hostaway.com/v1/reservations/{reservation_id}/conversations"
+            conv_response = session.get(conv_url)
+            conv_response.raise_for_status()
+            conv_data = conv_response.json()
+
+            try:
+                conversation_id = conv_data['result'][0]['conversationMessages'][0]['conversationId']
+            except (IndexError, KeyError):
+                logger.warning(f"No conversation ID found for reservation {reservation_id}")
+                error_notifications(f"No conversation ID found for reservation {reservation_id}")
+                continue
+
+            msg_url = f"https://api.hostaway.com/v1/conversations/{conversation_id}/messages?limit=5"
+            msg_response = session.get(msg_url)
+            msg_response.raise_for_status()
+            messages_data = msg_response.json()
+
+            messages = "".join(m.get('body', '') for m in messages_data.get('result', []))
+
+            data_send = {
+                'conversation_id': conversation_id,
+                'phone': phone,
+                'messages': messages
+            }
+            logger.info(f"Sending data: {data_send}")
+            try:
+                response = requests.post(WEBHOOK_URL, json=data_send)
+                response.raise_for_status()
+                logger.info(f"Webhook POST successful: {response.status_code}")
+
+            except Exception as e:
+                logger.error(f"Webhook POST failed: {e}")
+                error_notifications(f"Webhook POST failed: {e}")
+
+        return {"status_code": 200}
+
+    except Exception as e:
+        logger.error(f"Failed to process checkout: {e}", exc_info=True)
+        error_notifications(f"Failed to process checkout: {e}")
+        return {"status_code": 201}
+
+
 async def process_reservation_with_delay(id: int):
     try:
         await asyncio.sleep(15 * 60)
@@ -167,8 +227,7 @@ async def process_reservation_with_delay(id: int):
 
     except Exception as e:
         logger.error(f"Failed to process reservation: {e}", exc_info=True)
-
-
+        error_notifications(f"Failed to process reservation: {e}")
 
 
 

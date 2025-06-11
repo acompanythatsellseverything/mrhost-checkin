@@ -1,11 +1,9 @@
-from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Request, FastAPI
-from services.reservation import check_registrations, check_verifications, webhook
-from logging_to_file import setup_logger
+from fastapi import APIRouter, HTTPException, Request
+from app.services.reservation import check_registrations, check_verifications, webhook, checkout
+from app.logging_to_file import setup_logger
 
 
 logger = setup_logger(__name__)
-load_dotenv()
 
 
 router = APIRouter()
@@ -43,6 +41,21 @@ async def webhook_reservation(request: Request):
         return await webhook(request)
     except Exception as e:
         logger.exception("Error in /webhook/reservation")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/checkout")
+def checkout_info():
+    logger.info("POST /checkout called")
+    try:
+        result = checkout()
+        if result['status_code'] == 200:
+            return {"status": "success"}
+
+        return {"status": "failed"}
+
+    except Exception as e:
+        logger.exception("Error in /checkout")
         raise HTTPException(status_code=500, detail=str(e))
 
 
