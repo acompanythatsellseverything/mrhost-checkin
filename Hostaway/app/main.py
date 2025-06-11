@@ -23,5 +23,5 @@ def shutdown_scheduler():
 app.include_router(api_router)
 
 if __name__ == "__main__":
-    print("🚀 Server running at: http://localhost:8000")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("🚀 Server running at: http://localhost:8001")
+    uvicorn.run(app, host="167.235.55.167", port=8001)
