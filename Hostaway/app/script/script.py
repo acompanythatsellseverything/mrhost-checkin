@@ -16,7 +16,7 @@ session.headers.update({
 
 def visit_registration_endpoint():
     try:
-        response = session.get("https://167.235.55.167:8000/check_registrations")
+        response = session.get("https://167.235.55.167:8001/check_registrations")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         print(f"Visited endpoint, response:\n{pretty}")
@@ -26,7 +26,7 @@ def visit_registration_endpoint():
 
 def visit_verification_endpoint():
     try:
-        response = session.get("http://167.235.55.167:8000/check_verifications")
+        response = session.get("http://167.235.55.167:8001/check_verifications")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         print(f"Visited endpoint, response:\n{pretty}")
@@ -37,7 +37,7 @@ def visit_verification_endpoint():
 
 def visit_checkout():
     try:
-        response = session.get("http://167.235.55.167:8000/checkout")
+        response = session.get("http://167.235.55.167:8001/checkout")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         logger.info(f"Visited endpoint, response:\n{pretty}")
