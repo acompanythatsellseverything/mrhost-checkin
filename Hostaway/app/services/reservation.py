@@ -8,6 +8,7 @@ from fastapi import Request
 import pytz
 from app.logging_to_file import setup_logger
 from app.services.slack import error_notifications
+from app.services.whatsup import send_message
 
 
 logger = setup_logger(__name__)
@@ -69,14 +70,13 @@ def list_reservations(action: str) -> list:
 
 
 def check_registrations() -> dict:
-    response = {}
-
     try:
         reservations = list_reservations("registrations")
 
         for reservation in reservations:
 
             reservation_id = reservation.get("id")
+            phone_number = reservation.get("phone")
 
             custom_fields = reservation['customFieldValues']
             checkin_status = next(
@@ -86,18 +86,19 @@ def check_registrations() -> dict:
 
             if checkin_status != "GUESTS_REGISTERED":
                 if not db.was_reminder_sent(int(reservation_id), "checked_reservations"):
-                    response[reservation_id] = "already sent"
+                    logger.info(f"{reservation_id} - message has been already sent before.")
                 else:
-                    response[reservation_id] = db.no_register_answer()
+                    send_message(db.no_register_answer(), "+380991570383")  # Change phone number
+                    logger.info(f"Reminder message about verification to {phone_number} was just sent.")
             else:
-                response[reservation_id] = "Registered"
+                logger.info(f"{reservation_id} - REGISTERED")
 
-        return response
+        return {"status_code": 200}
 
     except Exception as e:
         logger.warning(f"Request failed: {e}")
         error_notifications(f"Request failed: {e}")
-        raise
+        return {"status_code": 201}
 
 
 def check_verifications() -> dict:
@@ -108,6 +109,7 @@ def check_verifications() -> dict:
     for reservation in reservations:
 
         reservation_id = reservation.get("id")
+        phone_number = reservation.get("phone")
 
         custom_fields = reservation['customFieldValues']
         checkin_status = next(
@@ -117,12 +119,14 @@ def check_verifications() -> dict:
 
         if checkin_status != "VERIFIED":
             if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
-                response[reservation_id] = "already sent"
+                logger.info(f"{reservation_id} - message has been already sent before.")
             else:
-                response[reservation_id] = db.no_documents_answer()
+                send_message(db.no_documents_answer(), "+380991570383")  # Change phone number
+                logger.info(f"Reminder message about verification to {phone_number} was just sent.")
         else:
-            response[reservation_id] = "Verified"
+            logger.info(f"{reservation_id} - VERIFIED")
 
+        return {"status_code": 200}
     return response
 
 
@@ -133,16 +137,17 @@ async def webhook(request: Request):
     arrival_date = data.get('result').get('arrivalDate')
 
     if not arrival_date:
+        error_notifications(f"No arrival date for {id}")
         return {"error": "checkin_date missing"}
 
     checkin_date = datetime.fromisoformat(arrival_date.replace("Z", "+00:00"))
     now = datetime.now(tz=pytz.UTC)
 
     if checkin_date < now + timedelta(days=1):
+        logger.info(f"Started processing {id} the reservation.")
         await process_reservation_with_delay(id)
-        return {"status": "processing scheduled"}
     else:
-        return {"status": "more than a day"}
+        logger.info(f"More than one day for registration {id}")
 
 
 def checkout():
@@ -180,7 +185,7 @@ def checkout():
 
             data_send = {
                 'conversation_id': conversation_id,
-                'phone': phone,
+                'phone': "+380991570383",  # Change phone number
                 'messages': messages
             }
             logger.info(f"Sending data: {data_send}")
@@ -207,33 +212,31 @@ async def process_reservation_with_delay(id: int):
         data = session.get(f"{GET_RESERVATION_BY_ID}/{id}").json()
 
         custom_fields = data['result']['customFieldValues']
+        phone_number = data['result']['phone']
 
-        register_check = ((f['value'] for f in custom_fields if f['customField']['name'] == 'Check-in Online Status'),
-                          None)
-        verification_check = ((f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'),
-                          None)
+        register_check = next(
+            (f['value'] for f in custom_fields if f['customField']['name'] == 'Check-in Online Status'), None)
+        verification_check = next(
+            (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'), None)
 
         if not register_check and not verification_check:
-            return {"message": "register and upload documents"}
+            send_message(db.no_docs_and_verification(), "+380991570383")  # Change phone number
+            logger.info(f"Reminder message about verification and registration to {phone_number} was just sent.")
 
         elif not register_check:
-            return {"message": "register"}
+            send_message(db.no_register_answer(), "+380991570383")  # Change phone number
+            logger.info(f"Reminder message about registration to {phone_number} was just sent.")
 
         elif not verification_check:
-            return {"message": "verify"}
+            send_message(db.no_documents_answer(), "+380991570383")  # Change phone number
+            logger.info(f"Reminder message about verification to {phone_number} was just sent.")
 
-        else:
-            return {"message": "fine!"}
+        return {"status_code": 200}
 
     except Exception as e:
         logger.error(f"Failed to process reservation: {e}", exc_info=True)
         error_notifications(f"Failed to process reservation: {e}")
-
-
-
-
-
-
+        return {"status_code": 201}
 
 
 

@@ -14,8 +14,10 @@ def get_registrations():
     logger.info("GET /check_registrations called")
     try:
         result = check_registrations()
-        logger.info(f"Found {len(result)} registration results")
-        return result
+        if result['status_code'] == 200:
+            return {"status": "success"}
+
+        return {"status": "failed"}
 
     except Exception as e:
         logger.exception("Error in /check_registrations")
@@ -27,8 +29,10 @@ def get_verifications():
     logger.info("GET /check_verifications called")
     try:
         result = check_verifications()
-        logger.info(f"Found {len(result)} verification results")
-        return result
+        if result['status_code'] == 200:
+            return {"status": "success"}
+
+        return {"status": "failed"}
     except Exception as e:
         logger.exception("Error in /check_verifications")
         raise HTTPException(status_code=500, detail=str(e))

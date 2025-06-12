@@ -4,11 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8194eb50-5e22-46d8-875c-aec94cccc953" name="Changes" comment="add docker file">
+    <list default="true" id="8194eb50-5e22-46d8-875c-aec94cccc953" name="Changes" comment="changed ports in main.py">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/nocodb.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/nocodb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/script/script.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/script/script.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/reservation.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/reservation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/whatsup.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/whatsup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +135,14 @@
       <workItem from="1749635530935" duration="1819000" />
       <workItem from="1749637376448" duration="1774000" />
       <workItem from="1749639361953" duration="235000" />
-      <workItem from="1749639607048" duration="1053000" />
+      <workItem from="1749639607048" duration="2504000" />
+      <workItem from="1749657521867" duration="508000" />
+      <workItem from="1749658087254" duration="4103000" />
+      <workItem from="1749664698226" duration="162000" />
+      <workItem from="1749731616419" duration="337000" />
+      <workItem from="1749743988105" duration="1227000" />
+      <workItem from="1749745967786" duration="435000" />
+      <workItem from="1749746750178" duration="2394000" />
     </task>
     <task id="LOCAL-00001" summary="added logs and correct the app launch">
       <option name="closed" value="true" />
@@ -157,7 +168,23 @@
       <option name="project" value="LOCAL" />
       <updated>1749640333493</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="changed ports">
+      <option name="closed" value="true" />
+      <created>1749640688143</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1749640688143</updated>
+    </task>
+    <task id="LOCAL-00005" summary="changed ports in main.py">
+      <option name="closed" value="true" />
+      <created>1749641037555</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1749641037555</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -167,12 +194,15 @@
     <MESSAGE value="added logs and correct the app launch" />
     <MESSAGE value="final app version 2.0" />
     <MESSAGE value="add docker file" />
-    <option name="LAST_COMMIT_MESSAGE" value="add docker file" />
+    <MESSAGE value="changed ports" />
+    <MESSAGE value="changed ports in main.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed ports in main.py" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/app_py$routes.coverage" NAME="routes Coverage Results" MODIFIED="1749636782200" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/api" />
     <SUITE FILE_PATH="coverage/Hostaway$answers_db.coverage" NAME="answers_db Coverage Results" MODIFIED="1749138216776" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/main_py$reservation.coverage" NAME="reservation Coverage Results" MODIFIED="1749570751332" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/services" />
+    <SUITE FILE_PATH="coverage/app_py$whatsup.coverage" NAME="whatsup Coverage Results" MODIFIED="1749660162511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/services" />
+    <SUITE FILE_PATH="coverage/main_py$reservation.coverage" NAME="reservation Coverage Results" MODIFIED="1749731743793" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/services" />
     <SUITE FILE_PATH="coverage/main_py$whatsup.coverage" NAME="whatsup Coverage Results" MODIFIED="1749195158940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/services" />
     <SUITE FILE_PATH="coverage/main_py$routes.coverage" NAME="routes Coverage Results" MODIFIED="1749564620814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/api" />
     <SUITE FILE_PATH="coverage/Hostaway$reservation.coverage" NAME="reservation Coverage Results" MODIFIED="1749159788067" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/services" />
