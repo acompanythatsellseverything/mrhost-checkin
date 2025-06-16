@@ -4,15 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8194eb50-5e22-46d8-875c-aec94cccc953" name="Changes" comment="changed ports in main.py">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+    <list default="true" id="8194eb50-5e22-46d8-875c-aec94cccc953" name="Changes" comment="changed ip address">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/nocodb.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/nocodb.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/script/script.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/script/script.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/logging_to_file.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/logging_to_file.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/services/reservation.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/reservation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/services/whatsup.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/whatsup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,6 +140,12 @@
       <workItem from="1749743988105" duration="1227000" />
       <workItem from="1749745967786" duration="435000" />
       <workItem from="1749746750178" duration="2394000" />
+      <workItem from="1749749187016" duration="3752000" />
+      <workItem from="1749759553153" duration="753000" />
+      <workItem from="1749816615477" duration="4000" />
+      <workItem from="1749991198113" duration="1097000" />
+      <workItem from="1750077480359" duration="4213000" />
+      <workItem from="1750087248976" duration="1592000" />
     </task>
     <task id="LOCAL-00001" summary="added logs and correct the app launch">
       <option name="closed" value="true" />
@@ -184,7 +187,23 @@
       <option name="project" value="LOCAL" />
       <updated>1749641037555</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="modified whatsup messages">
+      <option name="closed" value="true" />
+      <created>1749749302517</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1749749302517</updated>
+    </task>
+    <task id="LOCAL-00007" summary="changed ip address">
+      <option name="closed" value="true" />
+      <created>1749750219623</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1749750219623</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -196,15 +215,17 @@
     <MESSAGE value="add docker file" />
     <MESSAGE value="changed ports" />
     <MESSAGE value="changed ports in main.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed ports in main.py" />
+    <MESSAGE value="modified whatsup messages" />
+    <MESSAGE value="changed ip address" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed ip address" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/app_py$routes.coverage" NAME="routes Coverage Results" MODIFIED="1749636782200" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/api" />
     <SUITE FILE_PATH="coverage/Hostaway$answers_db.coverage" NAME="answers_db Coverage Results" MODIFIED="1749138216776" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/app_py$whatsup.coverage" NAME="whatsup Coverage Results" MODIFIED="1749660162511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/services" />
-    <SUITE FILE_PATH="coverage/main_py$reservation.coverage" NAME="reservation Coverage Results" MODIFIED="1749731743793" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/services" />
-    <SUITE FILE_PATH="coverage/main_py$whatsup.coverage" NAME="whatsup Coverage Results" MODIFIED="1749195158940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/services" />
+    <SUITE FILE_PATH="coverage/main_py$reservation.coverage" NAME="reservation Coverage Results" MODIFIED="1750087861234" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/services" />
     <SUITE FILE_PATH="coverage/main_py$routes.coverage" NAME="routes Coverage Results" MODIFIED="1749564620814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/api" />
+    <SUITE FILE_PATH="coverage/main_py$whatsup.coverage" NAME="whatsup Coverage Results" MODIFIED="1750088450155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/services" />
     <SUITE FILE_PATH="coverage/Hostaway$reservation.coverage" NAME="reservation Coverage Results" MODIFIED="1749159788067" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/services" />
     <SUITE FILE_PATH="coverage/Hostaway$routes.coverage" NAME="routes Coverage Results" MODIFIED="1749143737771" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/api" />
     <SUITE FILE_PATH="coverage/Hostaway$check_in.coverage" NAME="check_in Coverage Results" MODIFIED="1749138380024" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

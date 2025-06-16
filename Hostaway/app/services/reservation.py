@@ -77,7 +77,7 @@ def check_registrations() -> dict:
 
             reservation_id = reservation.get("id")
             phone_number = reservation.get("phone")
-
+            print(phone_number)
             custom_fields = reservation['customFieldValues']
             checkin_status = next(
                 (f['value'] for f in custom_fields if f['customField']['name'] == 'Check-in Online Status'),
@@ -88,7 +88,7 @@ def check_registrations() -> dict:
                 if not db.was_reminder_sent(int(reservation_id), "checked_reservations"):
                     logger.info(f"{reservation_id} - message has been already sent before.")
                 else:
-                    send_message(db.no_register_answer(), "+380991570383")  # Change phone number
+                    send_message("+380991570383", "reg")  # Change phone number
                     logger.info(f"Reminder message about verification to {phone_number} was just sent.")
             else:
                 logger.info(f"{reservation_id} - REGISTERED")
@@ -102,8 +102,6 @@ def check_registrations() -> dict:
 
 
 def check_verifications() -> dict:
-    response = {}
-
     reservations = list_reservations("verifications")
 
     for reservation in reservations:
@@ -121,13 +119,12 @@ def check_verifications() -> dict:
             if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
                 logger.info(f"{reservation_id} - message has been already sent before.")
             else:
-                send_message(db.no_documents_answer(), "+380991570383")  # Change phone number
+                send_message("+380991570383", "docs")  # Change phone number
                 logger.info(f"Reminder message about verification to {phone_number} was just sent.")
         else:
             logger.info(f"{reservation_id} - VERIFIED")
 
-        return {"status_code": 200}
-    return response
+    return {"status_code": 200}
 
 
 async def webhook(request: Request):
@@ -220,15 +217,15 @@ async def process_reservation_with_delay(id: int):
             (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'), None)
 
         if not register_check and not verification_check:
-            send_message(db.no_docs_and_verification(), "+380991570383")  # Change phone number
+            send_message("+380991570383", "docs_reg")  # Change phone number
             logger.info(f"Reminder message about verification and registration to {phone_number} was just sent.")
 
         elif not register_check:
-            send_message(db.no_register_answer(), "+380991570383")  # Change phone number
+            send_message("+380991570383", "reg")  # Change phone number
             logger.info(f"Reminder message about registration to {phone_number} was just sent.")
 
         elif not verification_check:
-            send_message(db.no_documents_answer(), "+380991570383")  # Change phone number
+            send_message("+380991570383", "docs")  # Change phone number
             logger.info(f"Reminder message about verification to {phone_number} was just sent.")
 
         return {"status_code": 200}
