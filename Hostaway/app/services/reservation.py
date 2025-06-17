@@ -10,7 +10,6 @@ from app.logging_to_file import setup_logger
 from app.services.slack import error_notifications
 from app.services.whatsup import send_message
 
-
 logger = setup_logger(__name__)
 load_dotenv()
 
@@ -127,9 +126,7 @@ def check_verifications() -> dict:
     return {"status_code": 200}
 
 
-async def webhook(request: Request):
-    data = await request.json()
-
+async def webhook(data: dict):
     id = data.get('result').get('id')
     arrival_date = data.get('result').get('arrivalDate')
 
@@ -137,10 +134,16 @@ async def webhook(request: Request):
         error_notifications(f"No arrival date for {id}")
         return {"error": "checkin_date missing"}
 
-    checkin_date = datetime.fromisoformat(arrival_date.replace("Z", "+00:00"))
+    try:
+        naive_date = datetime.strptime(arrival_date, "%Y-%m-%d")
+        checkin_date = pytz.UTC.localize(naive_date)
+    except Exception as e:
+        error_notifications(f"Invalid arrival date format for {id}: {arrival_date}")
+        return {"error": f"Invalid date format: {str(e)}"}
+
     now = datetime.now(tz=pytz.UTC)
 
-    if checkin_date < now + timedelta(days=1):
+    if checkin_date <= now + timedelta(days=1):
         logger.info(f"Started processing {id} the reservation.")
         await process_reservation_with_delay(id)
     else:
@@ -234,9 +237,4 @@ async def process_reservation_with_delay(id: int):
         logger.error(f"Failed to process reservation: {e}", exc_info=True)
         error_notifications(f"Failed to process reservation: {e}")
         return {"status_code": 201}
-
-
-
-
-
 

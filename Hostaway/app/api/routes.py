@@ -40,9 +40,11 @@ def get_verifications():
 
 @router.post("/webhook/reservation")
 async def webhook_reservation(request: Request):
-    logger.info("GET /webhook/reservation called")
+    logger.info("POST /webhook/reservation called")
     try:
-        return await webhook(request)
+        data = await request.json()  # ⬅️ Extract JSON data as dict
+        logger.info(f"Received data: {data}")
+        return await webhook(data)
     except Exception as e:
         logger.exception("Error in /webhook/reservation")
         raise HTTPException(status_code=500, detail=str(e))

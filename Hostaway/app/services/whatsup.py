@@ -31,7 +31,7 @@ def send_message(number: str, type: str) -> None | int:
     data = {
         "channelId": "86e0768b-4b93-4e52-bc88-2bce2ba9f0a1",
         "crmUserId": "2e0df233-0e31-470f-9b36-0699f34c3b12",
-        "chatId": f"{phone}",
+        "chatId": f"380991570383",
         "templateId": template_map.get(type, "123"),
         "chatType": "whatsapp"
     }
@@ -39,14 +39,12 @@ def send_message(number: str, type: str) -> None | int:
     try:
         response = requests.post(url, headers=headers, json=data)
         if response.ok:
-            return response.status_code
+            print(response.status_code)
         else:
             logger.warning(f"Failed to send message: {response.status_code} {response.text}")
-            return response.status_code
+            print (response.status_code)
 
     except Exception as e:
         logger.warning(f"Error sending message: {e}")
         return None
 
-
-send_message("+380991570383", "docs")
