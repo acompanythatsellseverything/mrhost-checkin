@@ -4,6 +4,9 @@ services:
   web:
     build: .
     ports:
-      - 8002:8002
+      - "8003:8003"
     volumes:
       - .:/app
+    env_file:
+      - .env
+    restart: always
