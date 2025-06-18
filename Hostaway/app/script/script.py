@@ -17,7 +17,7 @@ session.headers.update({
 
 def visit_registration_endpoint():
     try:
-        response = session.get("http://dev.mrhost.top/check_registrations")
+        response = session.get("https://dev.mrhost.top/check_registrations")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         print(f"Visited endpoint, response:\n{pretty}")
@@ -27,7 +27,7 @@ def visit_registration_endpoint():
 
 def visit_verification_endpoint():
     try:
-        response = session.get("http://dev.mrhost.top/check_verifications")
+        response = session.get("https://dev.mrhost.top/check_verifications")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         print(f"Visited endpoint, response:\n{pretty}")
@@ -38,7 +38,7 @@ def visit_verification_endpoint():
 
 def visit_checkout():
     try:
-        response = session.get("http://dev.mrhost.top/checkout")
+        response = session.get("https://dev.mrhost.top/checkout")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         logger.info(f"Visited endpoint, response:\n{pretty}")
@@ -48,6 +48,6 @@ def visit_checkout():
 
 spain_tz = pytz.timezone('Europe/Madrid')
 
-scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,12,18', minute='0,12', timezone=spain_tz)
+scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,12,18', minute='0,13', timezone=spain_tz)
 scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,15,18', minute='0,00', timezone=spain_tz)
 scheduler.add_job(visit_checkout, 'cron', hour='12', timezone=spain_tz)
