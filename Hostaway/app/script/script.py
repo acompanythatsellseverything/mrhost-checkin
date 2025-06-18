@@ -48,6 +48,6 @@ def visit_checkout():
 
 spain_tz = pytz.timezone('Europe/Madrid')
 
-scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,12,18', minute='0,15', timezone=spain_tz)
+scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,12,18', minute='0,27', timezone=spain_tz)
 scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,15,18', minute='0,00', timezone=spain_tz)
 scheduler.add_job(visit_checkout, 'cron', hour='12', timezone=spain_tz)
