@@ -47,4 +47,3 @@ def send_message(number: str, type: str) -> None | int:
     except Exception as e:
         logger.warning(f"Error sending message: {e}")
         return None
-

@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.logging_to_file import setup_logger
 
@@ -45,6 +46,8 @@ def visit_checkout():
         logger.error(f"Error visiting endpoint: {e}")
 
 
-scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,11,18', minute='0,35')
-scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,15,18', minute='0,00')
-scheduler.add_job(visit_checkout, 'cron', hour='12')
+spain_tz = pytz.timezone('Europe/Madrid')
+
+scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,11,18', minute='0,42', timezone=spain_tz)
+scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,15,18', minute='0,00', timezone=spain_tz)
+scheduler.add_job(visit_checkout, 'cron', hour='12', timezone=spain_tz)
