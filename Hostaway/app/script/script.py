@@ -45,6 +45,6 @@ def visit_checkout():
         logger.error(f"Error visiting endpoint: {e}")
 
 
-scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,15,18', minute='0,00')
+scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,11,18', minute='0,35')
 scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,15,18', minute='0,00')
 scheduler.add_job(visit_checkout, 'cron', hour='12')
