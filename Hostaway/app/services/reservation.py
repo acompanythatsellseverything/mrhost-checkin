@@ -10,7 +10,6 @@ from app.logging_to_file import setup_logger
 from app.services.slack import error_notifications
 from app.services.whatsup import send_message
 
-
 logger = setup_logger(__name__)
 load_dotenv()
 
@@ -77,7 +76,7 @@ def check_registrations() -> dict:
 
             reservation_id = reservation.get("id")
             phone_number = reservation.get("phone")
-
+            print(phone_number)
             custom_fields = reservation['customFieldValues']
             checkin_status = next(
                 (f['value'] for f in custom_fields if f['customField']['name'] == 'Check-in Online Status'),
@@ -88,7 +87,7 @@ def check_registrations() -> dict:
                 if not db.was_reminder_sent(int(reservation_id), "checked_reservations"):
                     logger.info(f"{reservation_id} - message has been already sent before.")
                 else:
-                    send_message(db.no_register_answer(), "+380991570383")  # Change phone number
+                    send_message("+380991570383", "reg")  # Change phone number
                     logger.info(f"Reminder message about verification to {phone_number} was just sent.")
             else:
                 logger.info(f"{reservation_id} - REGISTERED")
@@ -102,8 +101,6 @@ def check_registrations() -> dict:
 
 
 def check_verifications() -> dict:
-    response = {}
-
     reservations = list_reservations("verifications")
 
     for reservation in reservations:
@@ -121,18 +118,15 @@ def check_verifications() -> dict:
             if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
                 logger.info(f"{reservation_id} - message has been already sent before.")
             else:
-                send_message(db.no_documents_answer(), "+380991570383")  # Change phone number
+                send_message("+380991570383", "docs")  # Change phone number
                 logger.info(f"Reminder message about verification to {phone_number} was just sent.")
         else:
             logger.info(f"{reservation_id} - VERIFIED")
 
-        return {"status_code": 200}
-    return response
+    return {"status_code": 200}
 
 
-async def webhook(request: Request):
-    data = await request.json()
-
+async def webhook(data: dict):
     id = data.get('result').get('id')
     arrival_date = data.get('result').get('arrivalDate')
 
@@ -140,10 +134,16 @@ async def webhook(request: Request):
         error_notifications(f"No arrival date for {id}")
         return {"error": "checkin_date missing"}
 
-    checkin_date = datetime.fromisoformat(arrival_date.replace("Z", "+00:00"))
+    try:
+        naive_date = datetime.strptime(arrival_date, "%Y-%m-%d")
+        checkin_date = pytz.UTC.localize(naive_date)
+    except Exception as e:
+        error_notifications(f"Invalid arrival date format for {id}: {arrival_date}")
+        return {"error": f"Invalid date format: {str(e)}"}
+
     now = datetime.now(tz=pytz.UTC)
 
-    if checkin_date < now + timedelta(days=1):
+    if checkin_date <= now + timedelta(days=1):
         logger.info(f"Started processing {id} the reservation.")
         await process_reservation_with_delay(id)
     else:
@@ -220,15 +220,15 @@ async def process_reservation_with_delay(id: int):
             (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'), None)
 
         if not register_check and not verification_check:
-            send_message(db.no_docs_and_verification(), "+380991570383")  # Change phone number
+            send_message("+380991570383", "docs_reg")  # Change phone number
             logger.info(f"Reminder message about verification and registration to {phone_number} was just sent.")
 
         elif not register_check:
-            send_message(db.no_register_answer(), "+380991570383")  # Change phone number
+            send_message("+380991570383", "reg")  # Change phone number
             logger.info(f"Reminder message about registration to {phone_number} was just sent.")
 
         elif not verification_check:
-            send_message(db.no_documents_answer(), "+380991570383")  # Change phone number
+            send_message("+380991570383", "docs")  # Change phone number
             logger.info(f"Reminder message about verification to {phone_number} was just sent.")
 
         return {"status_code": 200}
@@ -237,9 +237,4 @@ async def process_reservation_with_delay(id: int):
         logger.error(f"Failed to process reservation: {e}", exc_info=True)
         error_notifications(f"Failed to process reservation: {e}")
         return {"status_code": 201}
-
-
-
-
-
 
