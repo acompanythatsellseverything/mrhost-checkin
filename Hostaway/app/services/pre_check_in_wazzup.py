@@ -20,6 +20,7 @@ headers = {
 
 
 def send_message(number: str, type: str, country: str) -> None | int:
+    print(f'message sent')
     phone = re.sub(r'\D', '', number)
 
     template_map = {
@@ -64,7 +65,7 @@ def send_message(number: str, type: str, country: str) -> None | int:
             print(response.status_code)
         else:
             logger.warning(f"Failed to send message: {response.status_code} {response.text}")
-            print (response.status_code)
+            print(response.status_code)
 
     except Exception as e:
         logger.warning(f"Error sending message: {e}")

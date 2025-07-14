@@ -110,6 +110,8 @@ def check_verifications() -> dict:
         phone_number = reservation.get("phone")
         country = reservation.get("guestCountry")
 
+        print(country)
+
         custom_fields = reservation['customFieldValues']
         checkin_status = next(
             (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'),
@@ -129,8 +131,8 @@ def check_verifications() -> dict:
 
 
 async def webhook(data: dict):
-    id = data.get('result').get('id')
-    arrival_date = data.get('result').get('arrivalDate')
+    id = data.get('id')
+    arrival_date = data.get('arrivalDate')
 
     if not arrival_date:
         error_notifications(f"No arrival date for {id}")
