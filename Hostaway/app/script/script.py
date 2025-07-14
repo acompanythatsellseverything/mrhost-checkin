@@ -2,6 +2,7 @@ import requests
 import os
 import json
 import pytz
+import time
 from apscheduler.schedulers.background import BackgroundScheduler
 from ..logging_to_file import setup_logger
 from ..services.slack_error_handler import error_notifications
@@ -21,6 +22,7 @@ def visit_registration_endpoint():
         response = session.get("https://dev.mrhost.top/check_registrations")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
+        time.sleep(2)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
         logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
@@ -33,6 +35,7 @@ def visit_verification_endpoint():
         response = session.get("https://dev.mrhost.top/check_verifications")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
+        time.sleep(5)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
         logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
