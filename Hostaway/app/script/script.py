@@ -4,6 +4,7 @@ import json
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from ..logging_to_file import setup_logger
+from ..services.slack_error_handler import error_notifications
 
 logger = setup_logger(__name__)
 session = requests.Session()
@@ -20,9 +21,11 @@ def visit_registration_endpoint():
         response = session.get("https://dev.mrhost.top/check_registrations")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
-        print(f"Visited endpoint, response:\n{pretty}")
+        error_notifications(f"Visited endpoint, response:\n{pretty}")
+        logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
-        print(f"Error visiting endpoint: {e}")
+        error_notifications(f"Error visiting endpoint: {e}")
+        logger.error(f"Error visiting endpoint: {e}")
 
 
 def visit_verification_endpoint():
@@ -30,9 +33,10 @@ def visit_verification_endpoint():
         response = session.get("https://dev.mrhost.top/check_verifications")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
-        print(f"Visited endpoint, response:\n{pretty}")
+        error_notifications(f"Visited endpoint, response:\n{pretty}")
         logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
+        error_notifications(f"Error visiting endpoint: {e}")
         logger.error(f"Error visiting endpoint: {e}")
 
 
@@ -41,13 +45,15 @@ def visit_checkout():
         response = session.get("https://dev.mrhost.top/checkout")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
+        error_notifications(f"Visited endpoint, response:\n{pretty}")
         logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
+        error_notifications(f"Error visiting endpoint: {e}")
         logger.error(f"Error visiting endpoint: {e}")
 
 
 spain_tz = pytz.timezone('Europe/Madrid')
 
-scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,13,18', minute='0,23', timezone=spain_tz)
-scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,15,18', minute='0,00', timezone=spain_tz)
+scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,13,18', minute='0,00', timezone=spain_tz)
+scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,13,18', minute='0,00', timezone=spain_tz)
 scheduler.add_job(visit_checkout, 'cron', hour='12', timezone=spain_tz)

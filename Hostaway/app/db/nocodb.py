@@ -14,27 +14,6 @@ headers = {
 }
 
 
-def no_register_answer() -> str:
-    response = requests.get(API_ANSWERS_URL, headers=headers)
-
-    data = response.json()
-    return data['list'][16]['answer']
-
-
-def no_documents_answer() -> str:
-    response = requests.get(API_ANSWERS_URL, headers=headers)
-
-    data = response.json()
-    return data['list'][0]['answer']
-
-
-def no_docs_and_verification() -> str:
-    response = requests.get(API_ANSWERS_URL, headers=headers)
-
-    data = response.json()
-    return data['list'][17]['answer']
-
-
 def was_reminder_sent(id: int, table: str) -> bool:
     params = {
         "where": f"(reservation_id,eq,{id})"

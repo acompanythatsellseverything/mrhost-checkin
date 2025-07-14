@@ -43,7 +43,11 @@ def send_message(number: str, type: str, country: str) -> None | int:
             "ES": "d9d01953-4775-436c-86a8-6b5210162348",
             "IT": "02c1dc99-04ae-4c57-88cd-0d13e122a6af",
             "EN": "f008ffa8-f8b3-4d7c-a1ec-b729d7bd2604"
+        },
+        "docs_reg": {
+            "EN": "f61aacc9-18d7-49c7-9ebb-fdd34906a8e5"
         }
+
     }
 
     template_id = template_map.get(type, {}).get(country)
@@ -54,7 +58,7 @@ def send_message(number: str, type: str, country: str) -> None | int:
     data = {
         "channelId": "86e0768b-4b93-4e52-bc88-2bce2ba9f0a1",
         "crmUserId": "2e0df233-0e31-470f-9b36-0699f34c3b12",
-        "chatId": f"38671262851",
+        "chatId": phone,
         "templateId": template_id,
         "chatType": "whatsapp"
     }

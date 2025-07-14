@@ -48,6 +48,7 @@ def list_reservations(action: str) -> list:
 
     try:
         logger.debug(f"Fetching reservations from URL: {url}")
+        error_notifications(f"Fetching reservations from URL: {url}")
 
         response = session.get(url)
         response.raise_for_status()
@@ -87,11 +88,14 @@ def check_registrations() -> dict:
             if checkin_status != "GUESTS_REGISTERED":
                 if not db.was_reminder_sent(int(reservation_id), "checked_reservations"):
                     logger.info(f"{reservation_id} - message has been already sent before.")
+                    error_notifications(f"{reservation_id} - message has been already sent before.")
                 else:
-                    send_message("+13475379038", "reg", country)  # Change phone number
+                    send_message("+380991570383", "reg", country)
                     logger.info(f"Reminder message about verification to {phone_number} was just sent.")
+                    error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
             else:
                 logger.info(f"{reservation_id} - REGISTERED")
+                error_notifications(f"{reservation_id} - REGISTERED")
 
         return {"status_code": 200}
 
@@ -122,11 +126,14 @@ def check_verifications() -> dict:
             if checkin_status != "VERIFIED":
                 if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
                     logger.info(f"{reservation_id} - message has been already sent before.")
+                    error_notifications(f"{reservation_id} - message has been already sent before.")
                 else:
-                    send_message("+380991570383", "docs", country)  # Change phone number
+                    send_message("+380991570383", "docs", country)
                     logger.info(f"Reminder message about verification to {phone_number} was just sent.")
+                    error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
             else:
                 logger.info(f"{reservation_id} - VERIFIED")
+                error_notifications(f"{reservation_id} - VERIFIED")
 
         return {"status_code": 200}
 
@@ -155,8 +162,10 @@ async def webhook(data: dict):
 
     if checkin_date <= now + timedelta(days=1):
         logger.info(f"Started processing {id} the reservation.")
+        error_notifications(f"Started processing {id} the reservation.")
         await process_reservation_with_delay(id)
     else:
+        error_notifications(f"More than one day for registration {id}")
         logger.info(f"More than one day for registration {id}")
 
 
@@ -195,7 +204,7 @@ def checkout():
 
             data_send = {
                 'conversation_id': conversation_id,
-                'phone': "+13475379038",  # Change phone number
+                'phone': "+380991570383",
                 'messages': messages
             }
             logger.info(f"Sending data: {data_send}")
@@ -203,6 +212,7 @@ def checkout():
                 response = requests.post(WEBHOOK_URL, json=data_send)
                 response.raise_for_status()
                 logger.info(f"Webhook POST successful: {response.status_code}")
+                error_notifications(f"Webhook POST successful: {response.status_code}")
 
             except Exception as e:
                 logger.error(f"Webhook POST failed: {e}")
@@ -223,6 +233,7 @@ async def process_reservation_with_delay(id: int):
 
         custom_fields = data['result']['customFieldValues']
         phone_number = data['result']['phone']
+        country = data['result']['guestCountry']
 
         register_check = next(
             (f['value'] for f in custom_fields if f['customField']['name'] == 'Check-in Online Status'), None)
@@ -230,16 +241,19 @@ async def process_reservation_with_delay(id: int):
             (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'), None)
 
         if not register_check and not verification_check:
-            send_message("+13475379038", "docs_reg")  # Change phone number
+            send_message("+380991570383", "docs_reg", country)
             logger.info(f"Reminder message about verification and registration to {phone_number} was just sent.")
+            error_notifications(f"Reminder message about verification and registration to {phone_number} was just sent.")
 
         elif not register_check:
-            send_message("+13475379038", "reg")  # Change phone number
+            send_message("+380991570383", "reg", country)
             logger.info(f"Reminder message about registration to {phone_number} was just sent.")
+            error_notifications(f"Reminder message about registration to {phone_number} was just sent.")
 
         elif not verification_check:
-            send_message("+13475379038", "docs")  # Change phone number
+            send_message("+380991570383", "docs", country)
             logger.info(f"Reminder message about verification to {phone_number} was just sent.")
+            error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
 
         return {"status_code": 200}
 
