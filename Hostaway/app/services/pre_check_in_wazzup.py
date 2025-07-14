@@ -54,7 +54,7 @@ def send_message(number: str, type: str, country: str) -> None | int:
     data = {
         "channelId": "86e0768b-4b93-4e52-bc88-2bce2ba9f0a1",
         "crmUserId": "2e0df233-0e31-470f-9b36-0699f34c3b12",
-        "chatId": f"380991570383",
+        "chatId": f"38671262851",
         "templateId": template_id,
         "chatType": "whatsapp"
     }
