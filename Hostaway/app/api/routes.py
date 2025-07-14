@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
-from app.services.reservation import check_registrations, check_verifications, webhook, checkout
+from app.services.pre_check_in_guest_filtering import check_registrations, check_verifications, webhook, checkout
 from app.logging_to_file import setup_logger
 
 
@@ -42,7 +42,7 @@ def get_verifications():
 async def webhook_reservation(request: Request):
     logger.info("POST /webhook/reservation called")
     try:
-        data = await request.json()  # ⬅️ Extract JSON data as dict
+        data = await request.json()
         logger.info(f"Received data: {data}")
         return await webhook(data)
     except Exception as e:
