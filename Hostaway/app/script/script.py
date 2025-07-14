@@ -3,7 +3,7 @@ import os
 import json
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-from app.logging_to_file import setup_logger
+from ..logging_to_file import setup_logger
 
 logger = setup_logger(__name__)
 session = requests.Session()
