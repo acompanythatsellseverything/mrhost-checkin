@@ -102,32 +102,38 @@ def check_registrations() -> dict:
 
 
 def check_verifications() -> dict:
-    reservations = list_reservations("verifications")
+    try:
+        reservations = list_reservations("verifications")
 
-    for reservation in reservations:
+        for reservation in reservations:
 
-        reservation_id = reservation.get("id")
-        phone_number = reservation.get("phone")
-        country = reservation.get("guestCountry")
+            reservation_id = reservation.get("id")
+            phone_number = reservation.get("phone")
+            country = reservation.get("guestCountry")
 
-        print(country)
+            print(country)
 
-        custom_fields = reservation['customFieldValues']
-        checkin_status = next(
-            (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'),
-            None
-        )
+            custom_fields = reservation['customFieldValues']
+            checkin_status = next(
+                (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'),
+                None
+            )
 
-        if checkin_status != "VERIFIED":
-            if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
-                logger.info(f"{reservation_id} - message has been already sent before.")
+            if checkin_status != "VERIFIED":
+                if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
+                    logger.info(f"{reservation_id} - message has been already sent before.")
+                else:
+                    send_message("+380991570383", "docs", country)  # Change phone number
+                    logger.info(f"Reminder message about verification to {phone_number} was just sent.")
             else:
-                send_message("+380991570383", "docs", country)  # Change phone number
-                logger.info(f"Reminder message about verification to {phone_number} was just sent.")
-        else:
-            logger.info(f"{reservation_id} - VERIFIED")
+                logger.info(f"{reservation_id} - VERIFIED")
 
-    return {"status_code": 200}
+        return {"status_code": 200}
+
+    except Exception as e:
+        logger.warning(f"Request failed: {e}")
+        error_notifications(f"Request failed: {e}")
+        return {"status_code": 201}
 
 
 async def webhook(data: dict):
@@ -242,11 +248,3 @@ async def process_reservation_with_delay(id: int):
         error_notifications(f"Failed to process reservation: {e}")
         return {"status_code": 201}
 
-
-def get_country():
-    response = session.get("https://api.hostaway.com/v1/reservations/44482335")
-    response.raise_for_status()
-    data = response.json()
-    print(data['result']['guestCountry'])
-
-get_country()
