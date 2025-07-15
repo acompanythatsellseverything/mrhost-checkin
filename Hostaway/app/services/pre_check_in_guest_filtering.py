@@ -90,7 +90,7 @@ def check_registrations() -> dict:
                     logger.info(f"{reservation_id} - message has been already sent before.")
                     error_notifications(f"{reservation_id} - message has been already sent before.")
                 else:
-                    send_message("+380991570383", "reg", country)
+                    send_message(phone_number, "reg", country)
                     logger.info(f"Reminder message about verification to {phone_number} was just sent.")
                     error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
             else:
@@ -128,7 +128,7 @@ def check_verifications() -> dict:
                     logger.info(f"{reservation_id} - message has been already sent before.")
                     error_notifications(f"{reservation_id} - message has been already sent before.")
                 else:
-                    send_message("+380991570383", "docs", country)
+                    send_message(phone_number, "docs", country)
                     logger.info(f"Reminder message about verification to {phone_number} was just sent.")
                     error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
             else:
@@ -204,7 +204,7 @@ def checkout():
 
             data_send = {
                 'conversation_id': conversation_id,
-                'phone': "+380991570383",
+                'phone': phone,
                 'messages': messages
             }
             logger.info(f"Sending data: {data_send}")
@@ -241,17 +241,17 @@ async def process_reservation_with_delay(id: int):
             (f['value'] for f in custom_fields if f['customField']['name'] == 'Identity Verification Status'), None)
 
         if not register_check and not verification_check:
-            send_message("+380991570383", "docs_reg", country)
+            send_message(phone_number, "docs_reg", country)
             logger.info(f"Reminder message about verification and registration to {phone_number} was just sent.")
             error_notifications(f"Reminder message about verification and registration to {phone_number} was just sent.")
 
         elif not register_check:
-            send_message("+380991570383", "reg", country)
+            send_message(phone_number, "reg", country)
             logger.info(f"Reminder message about registration to {phone_number} was just sent.")
             error_notifications(f"Reminder message about registration to {phone_number} was just sent.")
 
         elif not verification_check:
-            send_message("+380991570383", "docs", country)
+            send_message(phone_number, "docs", country)
             logger.info(f"Reminder message about verification to {phone_number} was just sent.")
             error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
 
