@@ -4,12 +4,14 @@ import json
 import pytz
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
+from pytz import timezone
 from ..logging_to_file import setup_logger
 from ..services.slack_error_handler import error_notifications
 
 logger = setup_logger(__name__)
 session = requests.Session()
 scheduler = BackgroundScheduler()
+spain_tz = timezone('Europe/Madrid')
 
 session.headers.update({
     'Authorization': f"Bearer {os.getenv('HOSTAWAY_API_KEY')}",
@@ -55,8 +57,32 @@ def visit_checkout():
         logger.error(f"Error visiting endpoint: {e}")
 
 
-spain_tz = pytz.timezone('Europe/Madrid')
+def schedule_jobs():
+    scheduler.add_job(
+        visit_registration_endpoint,
+        'cron',
+        hour='10,13,18',
+        minute='0,16',
+        timezone=spain_tz,
+        id="visit_registration",
+        replace_existing=True
+    )
 
-scheduler.add_job(visit_registration_endpoint, 'cron', hour='10,13,17', minute='0,34', timezone=spain_tz)
-scheduler.add_job(visit_verification_endpoint, 'cron', hour='10,13,17', minute='0,34', timezone=spain_tz)
-scheduler.add_job(visit_checkout, 'cron', hour='12', timezone=spain_tz)
+    scheduler.add_job(
+        visit_verification_endpoint,
+        'cron',
+        hour='10,13,18',
+        minute='0,17',
+        timezone=spain_tz,
+        id="visit_verification",
+        replace_existing=True
+    )
+
+    scheduler.add_job(
+        visit_checkout,
+        'cron',
+        hour='12',
+        timezone=spain_tz,
+        id="visit_checkout",
+        replace_existing=True
+    )
