@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.api.routes import router as api_router
 from app.script.script import scheduler
-from app.script.script import scheduler, schedule_jobs
+from app.script.script import start_scheduler
 import uvicorn
 
 app = FastAPI(
@@ -12,9 +12,8 @@ app = FastAPI(
 
 
 @app.on_event("startup")
-def start_scheduler():
-    schedule_jobs()
-    scheduler.start()
+def on_startup():
+    start_scheduler()
 
 
 @app.on_event("shutdown")

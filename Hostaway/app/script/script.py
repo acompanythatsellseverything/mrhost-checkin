@@ -24,7 +24,6 @@ def visit_registration_endpoint():
         response = session.get("https://dev.mrhost.top/check_registrations")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
-        time.sleep(2)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
         logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
@@ -37,7 +36,6 @@ def visit_verification_endpoint():
         response = session.get("https://dev.mrhost.top/check_verifications")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
-        time.sleep(5)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
         logger.info(f"Visited endpoint, response:\n{pretty}")
     except Exception as e:
@@ -58,25 +56,29 @@ def visit_checkout():
 
 
 def schedule_jobs():
+    logger.info("Scheduling background jobs...")
+
     scheduler.add_job(
         visit_registration_endpoint,
         'cron',
-        hour='10,13,18',
-        minute='0,16',
+        hour='10,13,19',
+        minute='0,06',
         timezone=spain_tz,
         id="visit_registration",
         replace_existing=True
     )
+    logger.info("Scheduled job: visit_registration_endpoint")
 
     scheduler.add_job(
         visit_verification_endpoint,
         'cron',
-        hour='10,13,18',
-        minute='0,17',
+        hour='10,13,19',
+        minute='0,07',
         timezone=spain_tz,
         id="visit_verification",
         replace_existing=True
     )
+    logger.info("Scheduled job: visit_verification_endpoint")
 
     scheduler.add_job(
         visit_checkout,
@@ -86,3 +88,10 @@ def schedule_jobs():
         id="visit_checkout",
         replace_existing=True
     )
+    logger.info("Scheduled job: visit_checkout")
+
+
+def start_scheduler():
+    schedule_jobs()
+    scheduler.start()
+    logger.info("Scheduler started.")
