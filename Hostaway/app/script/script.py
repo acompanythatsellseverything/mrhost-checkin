@@ -21,7 +21,7 @@ session.headers.update({
 
 def visit_registration_endpoint():
     try:
-        response = session.get("https://dev.mrhost.top/check_registrations")
+        response = session.get("http://web:8003/check_registrations")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
@@ -33,7 +33,7 @@ def visit_registration_endpoint():
 
 def visit_verification_endpoint():
     try:
-        response = session.get("https://dev.mrhost.top/check_verifications")
+        response = session.get("http://web:8003/check_verifications")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
@@ -61,8 +61,8 @@ def schedule_jobs():
     scheduler.add_job(
         visit_registration_endpoint,
         'cron',
-        hour='10,13,18',
-        minute='0,00',
+        hour='11,13,18',
+        minute='0,08',
         timezone=spain_tz,
         id="visit_registration",
         replace_existing=True
@@ -72,8 +72,8 @@ def schedule_jobs():
     scheduler.add_job(
         visit_verification_endpoint,
         'cron',
-        hour='10,13,18',
-        minute='0,00',
+        hour='11,13,18',
+        minute='0,09',
         timezone=spain_tz,
         id="visit_verification",
         replace_existing=True
@@ -91,7 +91,14 @@ def schedule_jobs():
     logger.info("Scheduled job: visit_checkout")
 
 
-def start_scheduler():
+if __name__ == "__main__":
+    logger.info("Scheduler process starting...")
     schedule_jobs()
     scheduler.start()
-    logger.info("Scheduler started.")
+    try:
+        while True:
+            time.sleep(60)
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
+        logger.info("Scheduler shut down.")
+
