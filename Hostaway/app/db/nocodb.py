@@ -14,28 +14,59 @@ headers = {
 }
 
 
-def was_reminder_sent(id: int, table: str) -> bool:
+def was_reminder_sent(id: int, table: str) -> int:
     params = {
         "where": f"(reservation_id,eq,{id})"
     }
 
     response = requests.get(f"{API_REMINDERS_URL}/{table}", params=params, headers=headers)
-
     data = response.json()
     rows = data.get("list", [])
-    print(rows)
 
-    if rows:
-        print(f"ID {id} found.")
-        return False
+    sent_count = len(rows)
+
+    if sent_count < 3:
+        new_row = {"reservation_id": id}
+        insert_resp = requests.post(f"{API_REMINDERS_URL}/{table}", headers=headers, json=new_row)
+
+        if insert_resp.status_code in (200, 201):
+            print(f"Reminder #{sent_count + 1} sent for reservation {id}.")
+            return sent_count + 1
+
+        else:
+            print(f"Failed to insert reminder for reservation {id}.")
+            return sent_count
+
+    else:
+        print(f"Max reminders reached for reservation {id}.")
+        return 4
+
+
+def arrival_message(id: int, table: str) -> int:
+    params = {
+        "where": f"(reservation_id,eq,{id})"
+    }
+
+    response = requests.get(f"{API_REMINDERS_URL}/{table}", params=params, headers=headers)
+    data = response.json()
+    rows = data.get("list", [])
+
+    sent_count = len(rows)
+
+    if sent_count:
+        return 300
+
     else:
         new_row = {"reservation_id": id}
         insert_resp = requests.post(f"{API_REMINDERS_URL}/{table}", headers=headers, json=new_row)
 
         if insert_resp.status_code in (200, 201):
-            print(f"ID {id} not found, inserted new row.")
+            print(f"Arrival message sent for reservation {id}.")
+            return 200
 
-    return True
+        else:
+            print(f"Failed to insert id for reservation {id}.")
+            return 500
 
 
 

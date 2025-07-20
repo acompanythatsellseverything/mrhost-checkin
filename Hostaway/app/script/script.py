@@ -19,18 +19,6 @@ session.headers.update({
 })
 
 
-def visit_registration_endpoint():
-    try:
-        response = session.get("http://web:8003/check_registrations")
-        data = response.json()
-        pretty = json.dumps(data, indent=4, ensure_ascii=False)
-        error_notifications(f"Visited endpoint, response:\n{pretty}")
-        logger.info(f"Visited endpoint, response:\n{pretty}")
-    except Exception as e:
-        error_notifications(f"Error visiting endpoint: {e}")
-        logger.error(f"Error visiting endpoint: {e}")
-
-
 def visit_verification_endpoint():
     try:
         response = session.get("http://web:8003/check_verifications")
@@ -43,9 +31,9 @@ def visit_verification_endpoint():
         logger.error(f"Error visiting endpoint: {e}")
 
 
-def visit_checkout():
+def visit_arrivals_endpoint():
     try:
-        response = session.get("https://dev.mrhost.top/checkout")
+        response = session.get("http://web:8003/check_arrivals")
         data = response.json()
         pretty = json.dumps(data, indent=4, ensure_ascii=False)
         error_notifications(f"Visited endpoint, response:\n{pretty}")
@@ -59,36 +47,26 @@ def schedule_jobs():
     logger.info("Scheduling background jobs...")
 
     scheduler.add_job(
-        visit_registration_endpoint,
-        'cron',
-        hour='11,13,14,15,18',
-        minute=15,
-        timezone=spain_tz,
-        id="visit_registration",
-        replace_existing=True
-    )
-    logger.info("Scheduled job: visit_registration_endpoint")
-
-    scheduler.add_job(
         visit_verification_endpoint,
         'cron',
-        hour='11,13,14,15,18',
-        minute=16,
+        hour='20,21,22,23',
+        minute=34,
         timezone=spain_tz,
         id="visit_verification",
         replace_existing=True
     )
-    logger.info("Scheduled job: visit_verification_endpoint")
+    logger.info("Scheduled job: visit_arrivals_endpoint")
 
     scheduler.add_job(
-        visit_checkout,
+        visit_arrivals_endpoint,
         'cron',
-        hour='12',
+        hour='20,21,22,23',
+        minute=35,
         timezone=spain_tz,
         id="visit_checkout",
         replace_existing=True
     )
-    logger.info("Scheduled job: visit_checkout")
+    logger.info("Scheduled job: visit_arrivals")
 
 
 if __name__ == "__main__":

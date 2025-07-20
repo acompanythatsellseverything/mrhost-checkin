@@ -15,7 +15,7 @@ load_dotenv()
 
 BAD_STATUSES = {"cancelled", "declined", "expired", "inquiryDenied", "inquiryNotPossible"}
 GET_RESERVATION_BY_ID = "https://api.hostaway.com/v1/reservations"
-CHECK_OUT_URL = "https://api.hostaway.com/v1/reservations?departureStartDate=TODAY&departureEndDate=TODAY"
+CHECK_IN_URL = ""
 WEBHOOK_URL = "https://mrhost.top/webhook/34d808dc-03c7-41cd-a426-cae0d7be98f0"
 
 session = requests.Session()
@@ -32,13 +32,14 @@ def get_days(days: int):
 
 
 def get_session_url(action: str) -> str:
-    if action == "registrations":
-        start_date, end_date = get_days(2)
+    start_date, end_date = get_days(1)
+    if action == "arrivals":
+        url = (f"https://api.hostaway.com/v1/reservations?offset=0&sortOrder=arrivalDate&arrivalStartDate={start_date}"
+               f"&arrivalEndDate={start_date}")
     else:
-        start_date, end_date = get_days(1)
-    url = (f"https://api.hostaway.com/v1/reservations?"
-           f"offset=0&sortOrder=arrivalDate"
-           f"&arrivalStartDate={start_date}&arrivalEndDate={end_date}")
+        url = (f"https://api.hostaway.com/v1/reservations?"
+               f"offset=0&sortOrder=arrivalDate"
+               f"&arrivalStartDate={start_date}&arrivalEndDate={end_date}")
     return url
 
 
@@ -69,42 +70,6 @@ def list_reservations(action: str) -> list:
         raise
 
 
-def check_registrations() -> dict:
-    try:
-        reservations = list_reservations("registrations")
-
-        for reservation in reservations:
-
-            reservation_id = reservation.get("id")
-            phone_number = reservation.get("phone")
-            country = reservation.get("guestCountry")
-            print(phone_number)
-            custom_fields = reservation['customFieldValues']
-            checkin_status = next(
-                (f['value'] for f in custom_fields if f['customField']['name'] == 'Check-in Online Status'),
-                None
-            )
-
-            if checkin_status != "GUESTS_REGISTERED":
-                if not db.was_reminder_sent(int(reservation_id), "checked_reservations"):
-                    logger.info(f"{reservation_id} - message has been already sent before.")
-                    error_notifications(f"{reservation_id} - message has been already sent before.")
-                else:
-                    send_message("+380991570383", "reg", country)
-                    logger.info(f"Reminder message about verification to {phone_number} was just sent.")
-                    error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
-            else:
-                logger.info(f"{reservation_id} - REGISTERED")
-                error_notifications(f"{reservation_id} - REGISTERED")
-
-        return {"status_code": 200}
-
-    except Exception as e:
-        logger.warning(f"Request failed: {e}")
-        error_notifications(f"Request failed: {e}")
-        return {"status_code": 201}
-
-
 def check_verifications() -> dict:
     try:
         reservations = list_reservations("verifications")
@@ -124,13 +89,14 @@ def check_verifications() -> dict:
             )
 
             if checkin_status != "VERIFIED":
-                if not db.was_reminder_sent(int(reservation_id), "checked_verifications"):
-                    logger.info(f"{reservation_id} - message has been already sent before.")
-                    error_notifications(f"{reservation_id} - message has been already sent before.")
+                reminders_num = db.was_reminder_sent(int(reservation_id), "checked_verifications")
+                if reminders_num == 4:
+                    logger.info(f"{reservation_id} - all 3 messages has been already sent.")
+                    error_notifications(f"{reservation_id} - all 3 messages has been already sent.")
                 else:
-                    send_message("+380991570383", "docs", country)
-                    logger.info(f"Reminder message about verification to {phone_number} was just sent.")
-                    error_notifications(f"Reminder message about verification to {phone_number} was just sent.")
+                    send_message("+380991570383", country, reminders_num, "check-in")
+                    logger.info(f"Reminder message {reminders_num} about verification to {phone_number} was just sent.")
+                    error_notifications(f"Reminder message {reminders_num} about verification to {phone_number} was just sent.")
             else:
                 logger.info(f"{reservation_id} - VERIFIED")
                 error_notifications(f"{reservation_id} - VERIFIED")
@@ -169,60 +135,62 @@ async def webhook(data: dict):
         logger.info(f"More than one day for registration {id}")
 
 
-def checkout():
+def arrivals():
     try:
-        response = session.get(CHECK_OUT_URL)
-        response.raise_for_status()
-        data = response.json()
+        reservations = list_reservations("arrivals")
 
-        for reservation in data.get('result', []):
-            reservation_id = reservation.get('id')
-            phone = reservation.get('phone')
+        for reservation in reservations:
 
-            if not reservation_id:
-                logger.warning("Missing reservation ID, skipping.")
+            reservation_id = reservation.get("id")
+            phone_number = reservation.get("phone")
+            country = reservation.get("guestCountry")
+            arrival_hour = reservation.get("checkInTime")  # e.g., 15
+            reservation_date_str = reservation.get("arrivalDate")  # e.g., "2024-07-20"
+
+            # Validation
+            if arrival_hour is None or reservation_date_str is None:
+                logger.warning(f"{reservation_id} - Missing check-in time or reservation date")
                 continue
 
-            conv_url = f"https://api.hostaway.com/v1/reservations/{reservation_id}/conversations"
-            conv_response = session.get(conv_url)
-            conv_response.raise_for_status()
-            conv_data = conv_response.json()
+            # Parse the reservation date string to datetime
+            reservation_date = datetime.strptime(reservation_date_str, "%Y-%m-%d")
 
-            try:
-                conversation_id = conv_data['result'][0]['conversationMessages'][0]['conversationId']
-            except (IndexError, KeyError):
-                logger.warning(f"No conversation ID found for reservation {reservation_id}")
-                error_notifications(f"No conversation ID found for reservation {reservation_id}")
-                continue
+            # Build full datetime for check-in
+            checkin_datetime = reservation_date.replace(hour=arrival_hour, minute=0, second=0)
 
-            msg_url = f"https://api.hostaway.com/v1/conversations/{conversation_id}/messages?limit=5"
-            msg_response = session.get(msg_url)
-            msg_response.raise_for_status()
-            messages_data = msg_response.json()
+            # Add 2 hours to check-in time
+            deadline = checkin_datetime + timedelta(hours=2)
 
-            messages = "".join(m.get('body', '') for m in messages_data.get('result', []))
+            now = datetime.now()
 
-            data_send = {
-                'conversation_id': conversation_id,
-                'phone': "+380991570383",
-                'messages': messages
-            }
-            logger.info(f"Sending data: {data_send}")
-            try:
-                response = requests.post(WEBHOOK_URL, json=data_send)
-                response.raise_for_status()
-                logger.info(f"Webhook POST successful: {response.status_code}")
-                error_notifications(f"Webhook POST successful: {response.status_code}")
+            print(f"[DEBUG] Reservation ID: {reservation_id}")
+            print(f"[DEBUG] Now: {now}")
+            print(f"[DEBUG] Check-in datetime: {checkin_datetime}")
+            print(f"[DEBUG] Deadline (check-in + 2h): {deadline}")
 
-            except Exception as e:
-                logger.error(f"Webhook POST failed: {e}")
-                error_notifications(f"Webhook POST failed: {e}")
+            if now >= deadline:
+                code = db.arrival_message(int(reservation_id), "post_checkin")
+                if code == 200:
+                    send_message("+380991570383", country, 0, "post-check-in")
+                    logger.info(f"{reservation_id} - post-checkin message was just sent.")
+                    error_notifications(f"{reservation_id} - post-checkin message was just sent")
+
+                elif code == 300:
+                    logger.info(f"{reservation_id} - arrival message has been already sent.")
+                    error_notifications(f"{reservation_id} - arrival message has been already sent.")
+
+                else:
+                    logger.error(f"{reservation_id} - Failed to insert value in db. Message not send")
+                    error_notifications(f"{reservation_id} - Failed to insert value in db. Message not send")
+            else:
+                logger.info(f"{reservation_id} - less than 2 hours after the official arrival time")
+                error_notifications(f"{reservation_id} - less than 2 hours after the official arrival time")
 
         return {"status_code": 200}
 
     except Exception as e:
-        logger.error(f"Failed to process checkout: {e}", exc_info=True)
-        error_notifications(f"Failed to process checkout: {e}")
+        logger.warning(f"Request failed: {e}")
+        error_notifications(f"Request failed: {e}")
         return {"status_code": 201}
 
 
