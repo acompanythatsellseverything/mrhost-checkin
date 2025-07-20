@@ -55,7 +55,7 @@ def schedule_jobs():
         id="visit_verification",
         replace_existing=True
     )
-    logger.info("Scheduled job: visit_arrivals_endpoint")
+    logger.info("Scheduled job: visit_verification")
 
     scheduler.add_job(
         visit_arrivals_endpoint,
