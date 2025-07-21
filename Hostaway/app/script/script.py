@@ -49,8 +49,8 @@ def schedule_jobs():
     scheduler.add_job(
         visit_verification_endpoint,
         'cron',
-        hour='20,21,22,23',
-        minute=34,
+        hour='10,13,18',
+        minute=28,
         timezone=spain_tz,
         id="visit_verification",
         replace_existing=True
@@ -60,8 +60,8 @@ def schedule_jobs():
     scheduler.add_job(
         visit_arrivals_endpoint,
         'cron',
-        hour='20,21,22,23',
-        minute=35,
+        hour='10,13,18',
+        minute=29,
         timezone=spain_tz,
         id="visit_checkout",
         replace_existing=True
