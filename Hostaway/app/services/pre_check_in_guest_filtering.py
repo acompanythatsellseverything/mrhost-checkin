@@ -9,6 +9,7 @@ import pytz
 from app.logging_to_file import setup_logger
 from app.services.slack_error_handler import error_notifications
 from app.services.pre_check_in_wazzup import send_message
+from zoneinfo import ZoneInfo
 
 logger = setup_logger(__name__)
 load_dotenv()
@@ -158,10 +159,12 @@ def arrivals():
             # Build full datetime for check-in
             checkin_datetime = reservation_date.replace(hour=arrival_hour, minute=0, second=0)
 
+            checkin_datetime = checkin_datetime.replace(tzinfo=ZoneInfo("Europe/Madrid"))
+
             # Add 2 hours to check-in time
             deadline = checkin_datetime + timedelta(hours=2)
 
-            now = datetime.now()
+            now = datetime.now(ZoneInfo("Europe/Madrid"))
 
             print(f"[DEBUG] Reservation ID: {reservation_id}")
             print(f"[DEBUG] Now: {now}")
