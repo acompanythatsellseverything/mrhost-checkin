@@ -94,7 +94,7 @@ def check_verifications() -> dict:
                     logger.info(f"{reservation_id} - all 3 messages has been already sent.")
                     error_notifications(f"{reservation_id} - all 3 messages has been already sent.")
                 else:
-                    send_message("+380991570383", country, reminders_num, "check-in")
+                    send_message(phone_number, country, reminders_num, "check-in")
                     logger.info(f"Reminder message {reminders_num} about verification to {phone_number} was just sent.")
                     error_notifications(f"Reminder message {reminders_num} about verification to {phone_number} was just sent.")
             else:
@@ -171,7 +171,7 @@ def arrivals():
             if now >= deadline:
                 code = db.arrival_message(int(reservation_id), "post_checkin")
                 if code == 200:
-                    send_message("+380991570383", country, 0, "post-check-in")
+                    send_message(phone_number, country, 0, "post-check-in")
                     logger.info(f"{reservation_id} - post-checkin message was just sent.")
                     error_notifications(f"{reservation_id} - post-checkin message was just sent")
 
